@@ -77,7 +77,7 @@ SC_MODULE(BUS_MATRIX) {
             data_mux.ins[i](s_data_bi[i]);
 
         SC_METHOD(write_data);
-        sensitive << clk.pos();
+        sensitive << m_data_bi;
     }
 
 private:
