@@ -3,6 +3,7 @@
 #include "cpu.h"
 #include "bus_matrix.h"
 #include "timer.h"
+#include "input_capture.h"
 
 int main(int argc, char* argv[]) {
     return sc_main(argc, argv);
@@ -28,6 +29,10 @@ int sc_main(int argc, char* argv[]){
 
     sc_signal < bool >         slv_rd_i[3];
     sc_signal < bool >         slv_wr_i[3];
+
+    sc_signal < sc_uint<16> >  t_vals[2];
+
+    sc_signal < bool >  ins;
 
 
     CPU cpu("cpu");
@@ -64,6 +69,7 @@ int sc_main(int argc, char* argv[]){
     timer1.data_bo(slv_data_bo[0]);
     timer1.rd_i(slv_rd_i[0]);
     timer1.wr_i(slv_wr_i[0]);
+    timer1.t_val_bo(t_vals[0]);
 
     TIMER timer2("timer2");
     timer2.clk(clock);
@@ -72,14 +78,18 @@ int sc_main(int argc, char* argv[]){
     timer2.data_bo(slv_data_bo[1]);
     timer2.rd_i(slv_rd_i[1]);
     timer2.wr_i(slv_wr_i[1]);
+    timer2.t_val_bo(t_vals[1]);
 
-    TIMER timer3("timer3");
-    timer3.clk(clock);
-    timer3.addr_bi(slv_addr_bi);
-    timer3.data_bi(slv_data_bi);
-    timer3.data_bo(slv_data_bo[2]);
-    timer3.rd_i(slv_rd_i[2]);
-    timer3.wr_i(slv_wr_i[2]);
+    INPUT_CAPTURE input_capture("input_capture");
+    input_capture.clk(clock);
+    input_capture.addr_bi(slv_addr_bi);
+    input_capture.data_bi(slv_data_bi);
+    input_capture.data_bo(slv_data_bo[2]);
+    input_capture.rd_i(slv_rd_i[2]);
+    input_capture.wr_i(slv_wr_i[2]);
+    input_capture.t_vals_bi[0](t_vals[0]);
+    input_capture.t_vals_bi[1](t_vals[1]);
+    input_capture.ins(ins);
 
     sc_trace_file *wf = sc_create_vcd_trace_file("wave");
     sc_trace(wf, clock, "clk");
@@ -91,15 +101,18 @@ int sc_main(int argc, char* argv[]){
 
     sc_trace(wf, slv_addr_bi, "slv_addr_bi");
     sc_trace(wf, slv_data_bi, "slv_data_bi");
-    sc_trace(wf, slv_data_bo[0], "slv_data_bo_0");
-    sc_trace(wf, slv_data_bo[1], "slv_data_bo_1");
-    sc_trace(wf, slv_data_bo[2], "slv_data_bo_2");
-    sc_trace(wf, slv_rd_i[0], "slv_rd_i_0");
-    sc_trace(wf, slv_rd_i[1], "slv_rd_i_1");
-    sc_trace(wf, slv_rd_i[2], "slv_rd_i_2");
-    sc_trace(wf, slv_wr_i[0], "slv_wr_i_0");
-    sc_trace(wf, slv_wr_i[1], "slv_wr_i_1");
-    sc_trace(wf, slv_wr_i[2], "slv_wr_i_2");
+    sc_trace(wf, slv_data_bo[0], "T1_data_bo");
+    sc_trace(wf, slv_data_bo[1], "T2_data_bo");
+    sc_trace(wf, slv_data_bo[2], "ic_data_bo");
+    sc_trace(wf, slv_rd_i[0], "T1_rd_i");
+    sc_trace(wf, slv_rd_i[1], "T2_rd_i");
+    sc_trace(wf, slv_rd_i[2], "ic_rd_i");
+    sc_trace(wf, slv_wr_i[0], "T1_wr_i");
+    sc_trace(wf, slv_wr_i[1], "T2_wr_i");
+    sc_trace(wf, slv_wr_i[2], "ic_wr_i");
+    sc_trace(wf, t_vals[0], "T1_value");
+    sc_trace(wf, t_vals[1], "T2_value");
+    sc_trace(wf, ins, "ins");
 
     sc_start();
 

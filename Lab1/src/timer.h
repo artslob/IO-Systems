@@ -13,10 +13,11 @@ SC_MODULE(TIMER) {
     sc_in     < bool >         rd_i;
     sc_in     < bool >         wr_i;
 
+    sc_out    < sc_uint<16> >  t_val_bo;
+
     void bus_read() {
         if (wr_i.read()) {
             data = data_bi.read();
-            cout << data;
         }
     }
 
