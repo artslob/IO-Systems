@@ -14,9 +14,16 @@ SC_MODULE(CPU) {
     sc_out    < bool>          wr_o;
 
     void main_thread() {
-        bus_write(0x01, 13);
-        bus_read(0x00);
+        bus_write(0x00, 0x03); // T0 TMR
+        bus_write(0x08, 0x02); // T0 TCONF
 
+        bus_write(0x0C, 0x03); // T1 TMR
+        bus_write(0x14, 0x02); // T1 TCONF
+
+        bus_read(0x04); // T1 TVAL
+
+        for (int i = 0; i < 15; i++)
+            wait();
         sc_stop();
     }
 

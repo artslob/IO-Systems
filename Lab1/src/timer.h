@@ -17,27 +17,86 @@ SC_MODULE(TIMER) {
 
     void bus_read() {
         if (wr_i.read()) {
-            data = data_bi.read();
+            switch (addr_bi.read()) {
+                case 0x00:
+                    TMR = (int) data_bi.read();
+                    break;
+                case 0x04:
+                    TVAL = (int) data_bi.read();
+                    break;
+                case 0x08:
+                    TCONF = (int) data_bi.read();
+                    break;
+                default:
+                    cout << "Timer got unknown address" << endl;
+                    break;
+            }
         }
     }
 
     void bus_write() {
-        if (rd_i.read())
-            data_bo.write(data);
+        if (rd_i.read()) {
+            switch (addr_bi.read()) {
+                case 0x00:
+                    data_bo.write(TMR);
+                    break;
+                case 0x04:
+                    data_bo.write(TVAL);
+                    break;
+                case 0x08:
+                    data_bo.write(TCONF);
+                    break;
+                default:
+                    cout << "Timer got unknown address" << endl;
+                    break;
+            }
+        }
     }
 
     SC_CTOR(TIMER){
-        data = 0;
-
         SC_METHOD(bus_read);
         sensitive << clk.pos();
 
         SC_METHOD(bus_write);
         sensitive << clk.pos();
+
+        SC_METHOD(timer);
+        sensitive << clk.pos();
     }
 
 private:
-    int data;
+    int TMR;   // initialization value
+    int TVAL;  // current value
+    int TCONF; // settings
+
+    void timer(){
+        if (is_running()) {
+            if (is_incremental()) {
+                t_val_bo.write(TVAL);
+                if (TVAL == TMR)
+                    TVAL = 0;
+                else
+                    TVAL++;
+
+            } else {
+                if (TVAL == 0)
+                    TVAL = TMR;
+                else
+                    TVAL--;
+                t_val_bo.write(TVAL);
+            }
+        } else {
+            t_val_bo.write(TVAL);
+        }
+    }
+
+    bool is_running() {
+        return (TCONF & 0x2) > 0;
+    }
+
+    bool is_incremental() {
+        return (TCONF & 0x1) == 0;
+    }
 };
 
 #endif //__TIMER_H__
