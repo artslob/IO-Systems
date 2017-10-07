@@ -65,9 +65,9 @@ SC_MODULE(TIMER) {
     }
 
 private:
-    int TMR;   // initialization value
-    int TVAL;  // current value
-    int TCONF; // settings
+    unsigned int TMR;   // initialization value
+    unsigned int TVAL;  // current value
+    unsigned int TCONF; // settings
 
     void timer(){
         if (is_running()) {
