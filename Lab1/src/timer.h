@@ -19,13 +19,13 @@ SC_MODULE(TIMER) {
         if (wr_i.read()) {
             switch (addr_bi.read()) {
                 case 0x00:
-                    TMR = (int) data_bi.read();
+                    TMR = (unsigned int) data_bi.read();
                     break;
                 case 0x04:
-                    TVAL = (int) data_bi.read();
+                    TVAL = (unsigned int) data_bi.read();
                     break;
                 case 0x08:
-                    TCONF = (int) data_bi.read();
+                    TCONF = (unsigned int) data_bi.read();
                     break;
                 default:
                     cout << "Timer got unknown address" << endl;
