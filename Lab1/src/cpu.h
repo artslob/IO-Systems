@@ -3,6 +3,10 @@
 
 #include "systemc.h"
 
+#include <iomanip>
+
+using std::setw;
+
 SC_MODULE(CPU) {
     sc_in     < bool >         clk;
 
@@ -32,17 +36,15 @@ SC_MODULE(CPU) {
 
         wait();
         addr_bo.write(addr);
-        rd_o.write(1);
+        rd_o.write(true);
 
         wait();
-        rd_o.write(0);
+        rd_o.write(false);
 
         wait();
-        data = data_bi.read();
+        data = (int) data_bi.read();
 
-        cout << "MIPS32: READ " << endl;
-        cout << "  -> addr: " << hex << addr << endl;
-        cout << "  -> data: " << hex << data << endl;
+        cout << "CPU: READ  addr: " << std::setw(2) << hex << addr << " data: " << std::setw(2) << hex << data << endl;
 
         return data;
 
@@ -52,14 +54,12 @@ SC_MODULE(CPU) {
         wait();
         addr_bo.write(addr);
         data_bo.write(data);
-        wr_o.write(1);
+        wr_o.write(true);
 
         wait();
-        wr_o.write(0);
+        wr_o.write(false);
 
-        cout << "MIPS32: WRITE " << endl;
-        cout << "  -> addr: " << hex << addr << endl;
-        cout << "  -> data: " << hex << data << endl;
+        cout << "CPU: WRITE addr: " << setw(2) << hex << addr << " data: " << setw(2) << hex << data << endl;
     }
 
 
