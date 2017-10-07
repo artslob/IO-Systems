@@ -44,7 +44,8 @@ SC_MODULE(CPU) {
         wait();
         data = (int) data_bi.read();
 
-        cout << "CPU: READ  addr: " << std::setw(2) << hex << addr << " data: " << std::setw(2) << hex << data << endl;
+        cout << "CPU: READ  addr: " << setw(2) << hex << addr << " data: " << setw(2) << hex << data;
+        cout << " time " << sc_time_stamp() << endl;
 
         return data;
 
@@ -59,7 +60,8 @@ SC_MODULE(CPU) {
         wait();
         wr_o.write(false);
 
-        cout << "CPU: WRITE addr: " << setw(2) << hex << addr << " data: " << setw(2) << hex << data << endl;
+        cout << "CPU: WRITE addr: " << setw(2) << hex << addr << " data: " << setw(2) << hex << data;
+        cout << " time " << sc_time_stamp() << endl;
     }
 
 
