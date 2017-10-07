@@ -53,7 +53,7 @@ SC_MODULE(TIMER) {
         }
     }
 
-    SC_CTOR(TIMER){
+    SC_CTOR(TIMER) : TMR(0), TVAL(0), TCONF(0) {
         SC_METHOD(bus_read);
         sensitive << clk.pos();
 

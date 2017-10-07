@@ -25,7 +25,7 @@ SC_MODULE(DEMUX) {
 
     sc_in     < sc_uint<2> >   mux_ctrl;
     sc_in     < bool >         in;
-    sc_out     < bool >        outs[3];
+    sc_out    < bool >         outs[3];
 
     void demux() {
         for (int i = 0; i < 3; i++)
