@@ -18,10 +18,13 @@ SC_MODULE(INPUT_CAPTURE) {
     sc_in     < sc_uint<16> >  t_vals_bi[2];
 
 
-    SC_CTOR(INPUT_CAPTURE) {
+    SC_CTOR(INPUT_CAPTURE) : ICCONF(0), ICBUF(0) {
 
     }
 
+private:
+    unsigned int ICCONF;  // 0x00 settings
+    unsigned int ICBUF;   // 0x04 fifo top
 };
 
 #endif //__INPUT_CAPTURE_H__
