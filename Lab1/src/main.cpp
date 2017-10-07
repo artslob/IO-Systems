@@ -4,6 +4,11 @@
 #include "bus_matrix.h"
 #include "timer.h"
 #include "input_capture.h"
+#include "test_oscillator.h"
+
+using namespace std;
+
+int get_ratio(int argc, char* argv[]);
 
 int main(int argc, char* argv[]) {
     return sc_main(argc, argv);
@@ -91,6 +96,10 @@ int sc_main(int argc, char* argv[]){
     input_capture.t_vals_bi[1](t_vals[1]);
     input_capture.ins(ins);
 
+    TEST_OSCILLATOR test_oscillator("test_oscillator", get_ratio(argc, argv));
+    test_oscillator.clk(clock);
+    test_oscillator.ins(ins);
+
     sc_trace_file *wf = sc_create_vcd_trace_file("wave");
     sc_trace(wf, clock, "clk");
     sc_trace(wf, cpu_addr_bo, "cpu_addr_bo");
@@ -114,9 +123,31 @@ int sc_main(int argc, char* argv[]){
     sc_trace(wf, t_vals[1], "T2_value");
     sc_trace(wf, ins, "ins");
 
+    sc_signal < sc_uint<32> > dbg_count;
+    test_oscillator.dbg_count(dbg_count);
+    sc_trace(wf, dbg_count, "counter");
+
     sc_start();
 
     sc_close_vcd_trace_file(wf);
 
     return 0;
+}
+
+int get_ratio(int argc, char *argv[]) {
+    if (argc > 1) {
+        try {
+            int ratio = stoi(argv[1]);
+            if (0 <= ratio && ratio <= 100)
+                return ratio;
+            else {
+                cout << "Ratio should be in 0..100, applied to default " << DEFAULT_RATIO << endl;
+                return DEFAULT_RATIO;
+            }
+        } catch (invalid_argument &e) {
+            cout << "Wrong ratio parameter, applied to default " << DEFAULT_RATIO << endl;
+            return DEFAULT_RATIO;
+        }
+    }
+    return DEFAULT_RATIO;
 }

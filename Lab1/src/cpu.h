@@ -26,7 +26,7 @@ SC_MODULE(CPU) {
 
         bus_read(0x04); // T1 TVAL
 
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 50; i++)
             wait();
         sc_stop();
     }

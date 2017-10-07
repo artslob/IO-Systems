@@ -13,7 +13,7 @@ set(SOURCE_FILES
         src/mux.h
         src/timer.h
         src/input_capture.h
-        )
+        src/test_oscillator.h)
 
 add_executable(Lab1 ${SOURCE_FILES})
 target_link_libraries(Lab1 systemc m)
