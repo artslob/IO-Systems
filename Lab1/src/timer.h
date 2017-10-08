@@ -15,6 +15,48 @@ SC_MODULE(TIMER) {
 
     sc_out    < sc_uint<16> >  t_val_bo;
 
+    SC_CTOR(TIMER) : TMR(0), TVAL(0), TCONF(0) {
+        SC_METHOD(timer);
+        sensitive << clk.pos();
+    }
+
+private:
+    unsigned int TMR;   // 0x00 initialization value
+    unsigned int TVAL;  // 0x04 current value
+    unsigned int TCONF; // 0x08 settings
+
+
+    bool is_running() {
+        return (TCONF & 0x2) > 0;
+    }
+
+    bool is_incremental() {
+        return (TCONF & 0x1) == 0;
+    }
+
+    void timer(){
+        bus_read();
+        if (is_running()) {
+            if (is_incremental()) {
+                t_val_bo.write(TVAL);
+                if (TVAL == TMR)
+                    TVAL = 0;
+                else
+                    TVAL++;
+
+            } else {
+                if (TVAL == 0)
+                    TVAL = TMR;
+                else
+                    TVAL--;
+                t_val_bo.write(TVAL);
+            }
+        } else {
+            t_val_bo.write(TVAL);
+        }
+        bus_write();
+    }
+
     void bus_read() {
         if (wr_i.read()) {
             switch (addr_bi.read()) {
@@ -53,50 +95,6 @@ SC_MODULE(TIMER) {
         }
     }
 
-    SC_CTOR(TIMER) : TMR(0), TVAL(0), TCONF(0) {
-        SC_METHOD(bus_read);
-        sensitive << clk.pos();
-
-        SC_METHOD(bus_write);
-        sensitive << clk.pos();
-
-        SC_METHOD(timer);
-        sensitive << clk.pos();
-    }
-
-private:
-    unsigned int TMR;   // 0x00 initialization value
-    unsigned int TVAL;  // 0x04 current value
-    unsigned int TCONF; // 0x08 settings
-
-    void timer(){
-        if (is_running()) {
-            if (is_incremental()) {
-                t_val_bo.write(TVAL);
-                if (TVAL == TMR)
-                    TVAL = 0;
-                else
-                    TVAL++;
-
-            } else {
-                if (TVAL == 0)
-                    TVAL = TMR;
-                else
-                    TVAL--;
-                t_val_bo.write(TVAL);
-            }
-        } else {
-            t_val_bo.write(TVAL);
-        }
-    }
-
-    bool is_running() {
-        return (TCONF & 0x2) > 0;
-    }
-
-    bool is_incremental() {
-        return (TCONF & 0x1) == 0;
-    }
 };
 
 #endif //__TIMER_H__
