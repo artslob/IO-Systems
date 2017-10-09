@@ -26,7 +26,10 @@ SC_MODULE(CPU) {
 
         bus_read(0x04); // T1 TVAL
 
-        for (int i = 0; i < 50; i++)
+        bus_write(0x18, 0x4);  // ICCONF
+        bus_read(0x18);
+
+        for (int i = 0; i < 200; i++)
             wait();
         sc_stop();
     }

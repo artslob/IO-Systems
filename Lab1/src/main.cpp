@@ -123,9 +123,11 @@ int sc_main(int argc, char* argv[]){
     sc_trace(wf, t_vals[1], "T2_value");
     sc_trace(wf, ins, "ins");
 
-    sc_signal < sc_uint<32> > dbg_count;
-    test_oscillator.dbg_count(dbg_count);
-    sc_trace(wf, dbg_count, "counter");
+    //TODO: remove debug signals, move pointer to trace file to ctors of modules
+    sc_trace(wf, test_oscillator.dbg_count, "counter");
+    sc_trace(wf, input_capture.ICM, "ICM");
+    sc_trace(wf, input_capture.prescaler_out, "PRESCALER_OUT");
+    sc_trace(wf, input_capture.ICCONF, "ICCONF");
 
     sc_start();
 

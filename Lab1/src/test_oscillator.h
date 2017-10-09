@@ -11,7 +11,7 @@ SC_MODULE(TEST_OSCILLATOR) {
     sc_in     < bool >         clk;
     sc_out    < bool >         ins;
 
-    sc_out    < sc_uint<32> >  dbg_count;
+    sc_signal < sc_uint<32> >  dbg_count;
 
     SC_HAS_PROCESS(TEST_OSCILLATOR);
 
