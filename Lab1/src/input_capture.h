@@ -83,7 +83,10 @@ SC_MODULE(INPUT_CAPTURE) {
         }
     }
 
-    SC_CTOR(INPUT_CAPTURE) : prescaler("prescaler"){
+    SC_HAS_PROCESS(INPUT_CAPTURE);
+
+    INPUT_CAPTURE(sc_module_name name, sc_trace_file *wf)
+            : sc_module(name), prescaler("prescaler") {
         SC_METHOD(bus_read);
         sensitive << clk.pos();
 
@@ -93,9 +96,13 @@ SC_MODULE(INPUT_CAPTURE) {
         prescaler.ins(ins);
         prescaler.ICM(ICM);
         prescaler.out(prescaler_out);
+
+        sc_trace(wf, ICM, "ICM");
+        sc_trace(wf, prescaler_out, "PRESCALER_OUT");
+        sc_trace(wf, ICCONF, "ICCONF");
     }
 
-//private: TODO: make private again
+private:
     PRESCALER prescaler;
 
     //TODO: mb change to uint
@@ -104,7 +111,7 @@ SC_MODULE(INPUT_CAPTURE) {
 
     sc_signal < sc_uint<3> >   ICM;
 
-// TODO: remove debug
+    /* debug signals */
     sc_signal < bool >         prescaler_out;
 };
 

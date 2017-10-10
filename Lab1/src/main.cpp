@@ -87,7 +87,7 @@ int sc_main(int argc, char* argv[]){
     timer2.wr_i(slv_wr_i[1]);
     timer2.t_val_bo(t_vals[1]);
 
-    INPUT_CAPTURE input_capture("input_capture");
+    INPUT_CAPTURE input_capture("input_capture", wf);
     input_capture.clk(clock);
     input_capture.addr_bi(slv_addr_bi);
     input_capture.data_bi(slv_data_bi);
@@ -123,11 +123,6 @@ int sc_main(int argc, char* argv[]){
     sc_trace(wf, t_vals[0], "T1_value");
     sc_trace(wf, t_vals[1], "T2_value");
     sc_trace(wf, ins, "ins");
-
-    //TODO: remove debug signals, move pointer to trace file to ctors of modules
-    sc_trace(wf, input_capture.ICM, "ICM");
-    sc_trace(wf, input_capture.prescaler_out, "PRESCALER_OUT");
-    sc_trace(wf, input_capture.ICCONF, "ICCONF");
 
     sc_start();
 
