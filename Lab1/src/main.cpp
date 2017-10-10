@@ -40,6 +40,8 @@ int sc_main(int argc, char* argv[]){
     sc_signal < bool >  ins;
 
 
+    sc_trace_file *wf = sc_create_vcd_trace_file("wave");
+
     CPU cpu("cpu");
     cpu.clk(clock);
     cpu.addr_bo(cpu_addr_bo);
@@ -96,11 +98,10 @@ int sc_main(int argc, char* argv[]){
     input_capture.t_vals_bi[1](t_vals[1]);
     input_capture.ins(ins);
 
-    TEST_OSCILLATOR test_oscillator("test_oscillator", get_ratio(argc, argv));
+    TEST_OSCILLATOR test_oscillator("test_oscillator", get_ratio(argc, argv), wf);
     test_oscillator.clk(clock);
     test_oscillator.ins(ins);
 
-    sc_trace_file *wf = sc_create_vcd_trace_file("wave");
     sc_trace(wf, clock, "clk");
     sc_trace(wf, cpu_addr_bo, "cpu_addr_bo");
     sc_trace(wf, cpu_data_bo, "cpu_data_bo");
@@ -124,7 +125,6 @@ int sc_main(int argc, char* argv[]){
     sc_trace(wf, ins, "ins");
 
     //TODO: remove debug signals, move pointer to trace file to ctors of modules
-    sc_trace(wf, test_oscillator.dbg_count, "counter");
     sc_trace(wf, input_capture.ICM, "ICM");
     sc_trace(wf, input_capture.prescaler_out, "PRESCALER_OUT");
     sc_trace(wf, input_capture.ICCONF, "ICCONF");

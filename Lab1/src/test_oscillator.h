@@ -11,22 +11,21 @@ SC_MODULE(TEST_OSCILLATOR) {
     sc_in     < bool >         clk;
     sc_out    < bool >         ins;
 
-    sc_signal < sc_uint<32> >  dbg_count;
-
     SC_HAS_PROCESS(TEST_OSCILLATOR);
 
-    TEST_OSCILLATOR(sc_module_name name, int ratio) : sc_module(name), counter(0) {
+    TEST_OSCILLATOR(sc_module_name name, int ratio, sc_trace_file *wf)
+            : sc_module(name), counter(0) {
         cout << "Test oscillator started with " << ratio << " ratio" << endl;
         left = (unsigned int) ((ratio / 100.0f) * SIGNAL_PERIOD);
         right = (unsigned int) ((100 - ratio) / 100.0f * SIGNAL_PERIOD);
         cout << "left is " << left << " right is " << right << endl;
         cout << "left/2 is " << left / 2 << " right/2 is " << right / 2 << endl;
         SC_CTHREAD(generate, clk.pos());
+        sc_trace(wf, counter, "osc_counter"); // TODO: this is debug
     }
 
     void generate() {
         while (true) {
-            dbg_count.write(counter);
             if (counter < left / 2)
                 ins.write(false);
             else if (left / 2 <= counter && counter < left)
