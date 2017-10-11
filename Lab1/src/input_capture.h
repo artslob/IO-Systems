@@ -10,19 +10,56 @@ SC_MODULE(PRESCALER) {
     sc_out    < bool >         out;
 
     void prescaler(){
-        if (1 <= ICM.read() && ICM.read() <= 3) {
-            counter = 0;
-            out.write(!out.read());
-        }
-        if (4 <= ICM.read()){
-            counter++;
-            if ((ICM.read() == 4 || ICM.read() == 6) && counter == 4) {
-                counter = 0;
+        switch (ICM.read()){
+            case 1:
                 out.write(!out.read());
-            } else if ((ICM.read() == 5 || ICM.read() == 7) && counter == 16) {
                 counter = 0;
-                out.write(!out.read());
-            }
+                break;
+            case 2:
+                if (ins.read() == false)
+                    out.write(!out.read());
+                counter = 0;
+                break;
+            case 3:
+                if (ins.read() == true)
+                    out.write(!out.read());
+                counter = 0;
+                break;
+            case 4:
+                if (ins.read() == true)
+                    counter++;
+                if (counter == 4) {
+                    out.write(!out.read());
+                    counter = 0;
+                }
+                break;
+            case 5:
+                if (ins.read() == true)
+                    counter++;
+                if (counter == 16) {
+                    out.write(!out.read());
+                    counter = 0;
+                }
+                break;
+            case 6:
+                if (ins.read() == false)
+                    counter++;
+                if (counter == 4) {
+                    out.write(!out.read());
+                    counter = 0;
+                }
+                break;
+            case 7:
+                if (ins.read() == false)
+                    counter++;
+                if (counter == 16) {
+                    out.write(!out.read());
+                    counter = 0;
+                }
+                break;
+            default:
+                counter = 0;
+                break;
         }
     }
 
