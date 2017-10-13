@@ -150,23 +150,12 @@ SC_MODULE(INPUT_CAPTURE) {
 
     void bus_read() {
         if (wr_i.read()) {
-            switch (addr_bi.read()) {
-                case 0x00: {
-                    unsigned int ICCONF = (unsigned int) data_bi.read();
-                    ICM.write(ICCONF);
-//                    ICBNE.write((bool) ICCONF >> 3);
-//                    ICOV.write((bool) ICCONF >> 4);
-                    ICTMR.write(ICCONF >> 5);
-                    break;
-                }
-//                case 0x04: {
-//                    ICBUF.write(data_bi.read());
-//                    break;
-//                }
-                default: {
-                    cout << "IC got unknown address" << endl;
-                    break;
-                }
+            if (addr_bi.read() == 0x00) {
+                unsigned int ICCONF = (unsigned int) data_bi.read();
+                ICM.write(ICCONF);
+                ICTMR.write(ICCONF >> 5);
+            } else {
+                cout << "IC got unknown address" << endl;
             }
         }
     }
