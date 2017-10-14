@@ -14,7 +14,7 @@ SC_MODULE(TEST_OSCILLATOR) {
     SC_HAS_PROCESS(TEST_OSCILLATOR);
 
     TEST_OSCILLATOR(sc_module_name name, int ratio, sc_trace_file *wf)
-            : sc_module(name), counter(0) {
+            : sc_module(name), counter(0), ratio(ratio) {
         cout << "Test oscillator started with " << ratio << " ratio" << endl;
         left = (unsigned int) ((ratio / 100.0f) * SIGNAL_PERIOD);
         right = (unsigned int) ((100 - ratio) / 100.0f * SIGNAL_PERIOD);
@@ -26,19 +26,25 @@ SC_MODULE(TEST_OSCILLATOR) {
 
     void generate() {
         while (true) {
-            if (counter < left / 2)
-                ins.write(false);
-            else if (left / 2 <= counter && counter < left)
-                ins.write(true);
-            else if (left <= counter && counter < (left + right / 2))
-                ins.write(false);
-            else if ((left + right / 2) <= counter && counter < left + right)
-                ins.write(true);
-            if (counter == left + right - 1) {
-                ins.write(true);
-                counter = 0;
+            if (ratio >= 0) {
+                if (counter < left / 2)
+                    ins.write(false);
+                else if (left / 2 <= counter && counter < left)
+                    ins.write(true);
+                else if (left <= counter && counter < (left + right / 2))
+                    ins.write(false);
+                else if ((left + right / 2) <= counter && counter < left + right)
+                    ins.write(true);
+                if (counter == left + right - 1) {
+                    ins.write(true);
+                    counter = 0;
+                }
+                else counter++;
             }
-            else counter++;
+            else if (ratio == -2 || ratio == -1) {
+                ins.write((bool) (ratio + 2));
+            }
+
             wait();
             if (sc_end_of_simulation_invoked())
                 break;
@@ -49,6 +55,7 @@ private:
     unsigned int counter;
     unsigned int left;
     unsigned int right;
+    int ratio;
 };
 
 #endif //__TEST_OSCILLATOR_H__

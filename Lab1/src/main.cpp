@@ -136,7 +136,7 @@ int get_ratio(int argc, char *argv[]) {
     if (argc > 1) {
         try {
             int ratio = stoi(argv[1]);
-            if (0 <= ratio && ratio <= 100)
+            if (-2 <= ratio && ratio <= 100)
                 return ratio;
             else {
                 cout << "Ratio should be in 0..100, applied to default " << DEFAULT_RATIO << endl;
