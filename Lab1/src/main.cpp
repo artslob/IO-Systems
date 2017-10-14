@@ -37,7 +37,7 @@ int sc_main(int argc, char* argv[]){
 
     sc_signal < sc_uint<16> >  t_vals[2];
 
-    sc_signal < bool >  ins;
+    sc_signal < bool >         ins;
 
 
     sc_trace_file *wf = sc_create_vcd_trace_file("wave");

@@ -214,10 +214,10 @@ private:
     FIFO_CONTROL fifo;
 
     // 0x00 ICCONF - settings
-    sc_signal < sc_uint<3>  >  ICM;   // bits 0-2
-    sc_signal < bool >         ICBNE; // bit  3
-    sc_signal < bool >         ICOV;  // bit  4
-    sc_signal < sc_uint<2>  >  ICTMR; // bits 5-6
+    sc_signal < sc_uint<3>  >           ICM;   // bits 0-2
+    sc_signal < bool, SC_MANY_WRITERS > ICBNE; // bit  3
+    sc_signal < bool, SC_MANY_WRITERS > ICOV;  // bit  4
+    sc_signal < sc_uint<2>  >           ICTMR; // bits 5-6
 
     // 0x04 ICBUF - fifo top
     sc_signal < sc_uint<32> >  ICBUF;

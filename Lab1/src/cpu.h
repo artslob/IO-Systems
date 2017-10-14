@@ -18,19 +18,42 @@ SC_MODULE(CPU) {
     sc_out    < bool>          wr_o;
 
     void main_thread() {
-        bus_write(0x00, 0x03); // T0 TMR
-        bus_write(0x08, 0x02); // T0 TCONF
+        bus_write(0x00, 0xFFFF); // T0 TMR
+        bus_write(0x08, 0x02);   // T0 TCONF
 
-        bus_write(0x0C, 0x03); // T1 TMR
-        bus_write(0x14, 0x02); // T1 TCONF
+        bus_write(0x0C, 0xFFFF); // T1 TMR
+        bus_write(0x14, 0x02);   // T1 TCONF
 
-        bus_read(0x04); // T1 TVAL
+        bus_write(0x18, 0x21);   // ICCONF 010_0001
 
-        bus_write(0x18, 0x24);  // ICCONF
-        bus_read(0x18);
+        unsigned int last = 0, buf[5] = {0};
 
-        for (int i = 0; i < 200; i++)
-            wait();
+        for (int i = 0; i < 100; i++) {
+            unsigned int ICCONF = (uint) bus_read(0x18);
+            sc_uint<3> ICM = ICCONF;
+            sc_uint<1> ICBNE = ICCONF >> 3;
+            sc_uint<1> ICOV = ICCONF >> 4;
+            if (ICBNE == 0)
+                continue;
+            if (ICOV == 1) {
+                cout << "IC buffer overflow" << endl;
+                sc_stop();
+            }
+            buf[last++] = (uint) bus_read(0x1C);
+            cout << "CPU got top of fifo: " << buf[last - 1] << endl;
+            if (last == 5) {
+                if (buf[4] - buf[3] == buf[2] - buf[1] && buf[3] - buf[2] == buf[1] - buf[0]) {
+                    cout << "Signal is periodical" << endl;
+                } else {
+                    cout << "Signal is NOT periodical" << endl;
+                }
+                for (int j = 0; j < 5; j++){
+                    buf[j] = 0;
+                }
+                last = 0;
+            }
+        }
+
         sc_stop();
     }
 

@@ -4,7 +4,7 @@
 #include "systemc.h"
 
 const int DEFAULT_RATIO = 50;
-const int SIGNAL_PERIOD = 20;
+const int SIGNAL_PERIOD = 40;
 
 
 SC_MODULE(TEST_OSCILLATOR) {
