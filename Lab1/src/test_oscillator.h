@@ -17,7 +17,7 @@ SC_MODULE(TEST_OSCILLATOR) {
             : sc_module(name), counter(0), ratio(ratio) {
         cout << "Test oscillator started with " << ratio << " ratio" << endl;
         left = (unsigned int) ((ratio / 100.0f) * SIGNAL_PERIOD);
-        right = (unsigned int) ((100 - ratio) / 100.0f * SIGNAL_PERIOD);
+        right = SIGNAL_PERIOD - left;
         cout << "left is " << left << " right is " << right << endl;
         cout << "left/2 is " << left / 2 << " right/2 is " << right / 2 << endl;
         SC_CTHREAD(generate, clk.pos());
