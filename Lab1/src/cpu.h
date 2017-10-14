@@ -29,7 +29,7 @@ SC_MODULE(CPU) {
         unsigned int last = 0, buf[5] = {0};
 
         for (int i = 0; i < 100; i++) {
-            unsigned int ICCONF = (uint) bus_read(0x18);
+            unsigned int ICCONF = (uint) bus_read(0x18, false);
             sc_uint<3> ICM = ICCONF;
             sc_uint<1> ICBNE = ICCONF >> 3;
             sc_uint<1> ICOV = ICCONF >> 4;
@@ -39,8 +39,8 @@ SC_MODULE(CPU) {
                 cout << "IC buffer overflow" << endl;
                 sc_stop();
             }
-            buf[last++] = (uint) bus_read(0x1C);
-            cout << "CPU got top of fifo: " << buf[last - 1] << endl;
+            buf[last++] = (uint) bus_read(0x1C, false);
+            cout << "CPU: top of fifo: " << buf[last - 1] << "  " << sc_time_stamp() << endl;
             if (last == 5) {
                 if (buf[4] - buf[3] == buf[2] - buf[1] && buf[3] - buf[2] == buf[1] - buf[0]) {
                     cout << "Signal is periodical" << endl;
@@ -57,7 +57,7 @@ SC_MODULE(CPU) {
         sc_stop();
     }
 
-    int bus_read(int addr) {
+    int bus_read(int addr, bool dbg=true) {
         int data;
 
         wait();
@@ -70,14 +70,17 @@ SC_MODULE(CPU) {
         wait();
         data = (int) data_bi.read();
 
-        cout << "CPU: READ  addr: " << setw(2) << hex << addr << " data: " << setw(2) << hex << data;
-        cout << " time " << sc_time_stamp() << endl;
+        if (dbg){
+            cout << "CPU: READ  addr: " << setw(2) << hex << addr <<
+                              " data: " << setw(4) << hex << data;
+            cout << " time " << sc_time_stamp() << endl;
+        }
 
         return data;
 
     }
 
-    void bus_write(int addr, int data) {
+    void bus_write(int addr, int data, bool dbg=true) {
         wait();
         addr_bo.write(addr);
         data_bo.write(data);
@@ -86,8 +89,11 @@ SC_MODULE(CPU) {
         wait();
         wr_o.write(false);
 
-        cout << "CPU: WRITE addr: " << setw(2) << hex << addr << " data: " << setw(2) << hex << data;
-        cout << " time " << sc_time_stamp() << endl;
+        if (dbg) {
+            cout << "CPU: WRITE addr: " << setw(2) << hex << addr <<
+                              " data: " << setw(4) << hex << data;
+            cout << " time " << sc_time_stamp() << endl;
+        }
     }
 
 
