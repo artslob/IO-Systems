@@ -39,11 +39,15 @@ SC_MODULE(CPU) {
                 cout << "IC buffer overflow" << endl;
                 sc_stop();
             }
+
             buf[last++] = (uint) bus_read(0x1C, false);
             cout << "CPU: top of fifo: " << buf[last - 1] << "  " << sc_time_stamp() << endl;
+
             if (last == 5) {
                 if (buf[4] - buf[3] == buf[2] - buf[1] && buf[3] - buf[2] == buf[1] - buf[0]) {
-                    cout << "Signal is periodical" << endl;
+                    sc_time period = (buf[4] - buf[2]) * this->time;
+                    cout << "Periodical signal: T = " << period;
+                    cout << "; f = " << 1 / period.to_seconds() << " Hz" << endl;
                 } else {
                     cout << "Signal is NOT periodical" << endl;
                 }
@@ -96,10 +100,14 @@ SC_MODULE(CPU) {
         }
     }
 
+    SC_HAS_PROCESS(CPU);
 
-    SC_CTOR(CPU){
+    CPU(sc_module_name name, const sc_time& clock_time) : sc_module(name), time(clock_time) {
         SC_CTHREAD(main_thread, clk.pos());
     }
+
+private:
+    sc_time time;
 };
 
 #endif //__CPU_H__

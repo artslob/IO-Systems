@@ -15,7 +15,8 @@ int main(int argc, char* argv[]) {
 }
 
 int sc_main(int argc, char* argv[]){
-    sc_clock clock("clock", sc_time(10, SC_NS), 0.5, sc_time(5, SC_NS));
+    sc_time time(10, SC_NS);
+    sc_clock clock("clock", time, 0.5, time / 2);
 
     /* cpu signals */
     sc_signal < sc_uint<32> >  cpu_addr_bo;
@@ -42,7 +43,7 @@ int sc_main(int argc, char* argv[]){
 
     sc_trace_file *wf = sc_create_vcd_trace_file("wave");
 
-    CPU cpu("cpu");
+    CPU cpu("cpu", time);
     cpu.clk(clock);
     cpu.addr_bo(cpu_addr_bo);
     cpu.data_bo(cpu_data_bo);
