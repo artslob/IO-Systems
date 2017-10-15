@@ -27,6 +27,7 @@ SC_MODULE(CPU) {
         bus_write(0x18, 0x21);   // ICCONF 010_0001
 
         unsigned int last = 0, buf[5] = {0};
+        bool filled = false;
 
         for (int i = 0; i < 100; i++) {
             unsigned int ICCONF = (uint) bus_read(0x18, false);
@@ -40,25 +41,30 @@ SC_MODULE(CPU) {
                 sc_stop();
             }
 
-            buf[last++] = (uint) bus_read(0x1C, false);
-            cout << "CPU: top of fifo: " << buf[last - 1] << "  " << sc_time_stamp() << endl;
+            buf[last] = (uint) bus_read(0x1C, false);
+            cout << "CPU: top of fifo: " << buf[last] << "  " << sc_time_stamp() << endl;
+            last = (last + 1) % 5;
 
-            if (last == 5) {
-                if (buf[4] - buf[3] == buf[2] - buf[1] && buf[3] - buf[2] == buf[1] - buf[0]) {
-                    sc_time period = (buf[4] - buf[2]) * this->time;
-                    cout << "Periodical signal: T = " << period;
-                    cout << "; f = " << 1 / period.to_seconds() << " Hz" << endl;
-                } else {
-                    cout << "Signal is NOT periodical" << endl;
-                }
-                for (int j = 0; j < 5; j++){
-                    buf[j] = 0;
-                }
-                last = 0;
+            if (!filled && last != 0)
+                continue;
+            else filled = true;
+
+            if (buf[mod5(last + 4)] - buf[mod5(last + 3)] == buf[mod5(last + 2)] - buf[mod5(last + 1)] &&
+                buf[mod5(last + 3)] - buf[mod5(last + 2)] == buf[mod5(last + 1)] - buf[last])
+            {
+                sc_time period = (buf[mod5(last + 4)] - buf[mod5(last + 2)]) * this->time;
+                cout << "Periodical signal: T = " << period;
+                cout << "; f = " << 1 / period.to_seconds() << " Hz" << endl;
+            } else {
+                cout << "Signal is NOT periodical" << endl;
             }
         }
 
         sc_stop();
+    }
+
+    int mod5(int param){
+        return param % 5;
     }
 
     int bus_read(int addr, bool dbg=true) {
