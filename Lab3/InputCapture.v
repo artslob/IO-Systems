@@ -5,7 +5,7 @@ module InputCapture(
         
         input [12:0] addr_bi,
         input [31:0] data_bi,
-        output [31:0] data_bo,
+        output reg [31:0] data_bo,
         
         input rd_i,
         input wr_i,
@@ -13,4 +13,39 @@ module InputCapture(
         input ins,
         input [15:0] t_val_bi_0, t_val_bi_1
     );
+    
+    reg [2:0] ICM = 0;
+    reg ICBNE = 0;
+    reg ICOV = 0;
+    reg [1:0] ICTMR = 0;
+    
+    always@(posedge clk) begin
+        if (wr_i == 1) begin
+            case (addr_bi)
+                0: begin
+                    ICM <= (data_bi & 7);
+                    ICTMR <= ((data_bi >> 5) & 3);
+                end
+                default: begin
+                    $display("Input Capture got unknown WRITE address: %d time: %d", addr_bi, $time);
+                end
+            endcase
+        end
+        
+        if (rd_i == 1) begin
+            case (addr_bi)
+                0: begin
+                    data_bo <= (ICTMR << 5 | ICOV << 4 | ICBNE << 3 | ICM);
+                end
+                4: begin
+                    // TODO: implement fifo read
+                    data_bo <= 42;
+                end
+                default: begin
+                    $display("Input Capture got unknown READ address: %d time: %d", addr_bi, $time);
+                end
+            endcase
+        end
+    end
+    
 endmodule
