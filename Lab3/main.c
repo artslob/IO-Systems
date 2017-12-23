@@ -34,7 +34,18 @@ unsigned int get_tlr_value(unsigned int period) {
 #define PERIODS_LENGTH 3
 
 int main() {
+	Xil_Out32(ICCONF, 0b1100001);
+	Xil_Out32(ICCONF, 0b1100010);
+	Xil_Out32(ICCONF, 0b1100011);
+	Xil_Out32(ICCONF, 0b1100100);
+	Xil_Out32(ICCONF, 0b1100101);
+	Xil_Out32(ICCONF, 0b1100110);
 	Xil_Out32(ICCONF, 0b1100111);
+	Xil_In32(ICCONF);
+	Xil_In32(ICCONF);
+	Xil_In32(ICCONF);
+	Xil_Out32(ICCONF, 0b1100000);
+	Xil_Out32(ICCONF, 0b1100001);
 	Xil_Out32(GPIO_ADDRESS, Xil_In32(ICCONF));
 
 	unsigned int TIMES[] = {500, 600, 700};

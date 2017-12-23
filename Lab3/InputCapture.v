@@ -2,6 +2,7 @@
 
 module InputCapture(
         input clk,
+        input rst_i,
         
         input [12:0] addr_bi,
         input [31:0] data_bi,
@@ -15,9 +16,29 @@ module InputCapture(
     );
     
     reg [2:0] ICM = 0;
-    reg ICBNE = 0;
-    reg ICOV = 0;
+    wire ICBNE;
+    wire ICOV;
     reg [1:0] ICTMR = 0;
+    
+    wire prescaler_out;
+    wire ICBUF = 0;
+    
+    Prescaler prescaler(
+        .ins(ins),
+        .rst_i(rst_i),
+        .ICM(ICM),
+        .out(prescaler_out)
+    );
+    
+    Fifo_control fifo(
+        .ins(prescaler_out),
+        .ICTMR(ICTMR),
+        .t_val_bi_0(t_val_bi_0),
+        .t_val_bi_1(t_val_bi_1),
+        .ICBNE(ICBNE),
+        .ICOV(ICOV),
+        .ICBUF(ICBUF)
+    );
     
     always@(posedge clk) begin
         if (wr_i == 1) begin
