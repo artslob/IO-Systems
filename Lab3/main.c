@@ -14,6 +14,17 @@ unsigned int TCR1  = AXI_TIMER_ADDRESS + 0x18; // Timer 1 Counter Register
 #define AXI_UARTLITE_ADDRESS   0x40600000
 
 #define AXI_BRAM_ADDRESS   0xC0000000
+/* Timer 0 */
+unsigned int T0_TMR   = AXI_BRAM_ADDRESS + 0x00; // Timer 0 TMR
+unsigned int T0_TVAL  = AXI_BRAM_ADDRESS + 0x04; // Timer 0 TVAL
+unsigned int T0_TCONF = AXI_BRAM_ADDRESS + 0x08; // Timer 0 TCONF
+/* Timer 1 */
+unsigned int T1_TMR   = AXI_BRAM_ADDRESS + 0x0C; // Timer 1 TMR
+unsigned int T1_TVAL  = AXI_BRAM_ADDRESS + 0x10; // Timer 1 TVAL
+unsigned int T1_TCONF = AXI_BRAM_ADDRESS + 0x14; // Timer 1 TCONF
+/* Input Capture */
+unsigned int ICCONF   = AXI_BRAM_ADDRESS + 0x18; // IC ICCONF
+unsigned int ICBUF    = AXI_BRAM_ADDRESS + 0x1C; // IC ICBUF
 
 
 unsigned int get_tlr_value(unsigned int period) {
@@ -23,11 +34,15 @@ unsigned int get_tlr_value(unsigned int period) {
 #define PERIODS_LENGTH 3
 
 int main() {
-	Xil_Out32(0xC0000000, 0xAA);
-	Xil_Out32(0xC0000004, 0xBB);
-	Xil_In32(0xC000000C);
-	Xil_Out32(0xC0000008, 0xCC);
-	Xil_Out32(0xC000000C, 0xDD);
+	Xil_Out32(T0_TVAL, 0xAA);
+	Xil_Out32(GPIO_ADDRESS, Xil_In32(T0_TVAL));
+	Xil_Out32(T1_TCONF, 0xCC);
+	Xil_Out32(GPIO_ADDRESS, Xil_In32(T1_TCONF));
+	Xil_Out32(GPIO_ADDRESS, 0x01);
+	Xil_Out32(GPIO_ADDRESS, 0x02);
+//	Xil_In32(0xC000000C);
+//	Xil_Out32(0xC0000008, 0xCC);
+//	Xil_Out32(0xC000000C, 0xDD);
 
 	unsigned int TIMES[] = {500, 600, 700};
 
