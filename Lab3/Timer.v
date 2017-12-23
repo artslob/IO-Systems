@@ -10,7 +10,7 @@ module Timer(
         input rd_i,
         input wr_i,
         
-        output [15:0] t_val_bo
+        output reg [15:0] t_val_bo
     );
     
     reg [15:0] TMR = 0, TVAL = 0, TCONF = 0;
@@ -31,6 +31,26 @@ module Timer(
                     $display("Timer got unknown WRITE address: %d time: %d", addr_bi, $time);
                 end
             endcase
+        end
+        
+        if ((TCONF & 2) > 0) begin // running
+            if ((TCONF & 1) == 0) begin //incremental
+                t_val_bo <= TVAL;
+                if (TVAL == TMR) begin
+                    TVAL <= 0;
+                end else begin
+                    TVAL <= TVAL + 1;
+                end
+            end else begin // decremental
+                if (TVAL == 0) begin
+                    TVAL <= TMR;
+                end else begin
+                    TVAL <= TVAL - 1;
+                end
+                t_val_bo <= TVAL;
+            end
+        end else begin // not working
+            t_val_bo <= TVAL;
         end
         
         if (rd_i == 1) begin
