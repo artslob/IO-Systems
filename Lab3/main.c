@@ -1,30 +1,30 @@
 #include <xil_io.h>
 
-#define GPIO_ADDRESS   0x40000000
+#define GPIO      0x40000000
 
 /* AXI Timer register addresses */
-#define AXI_TIMER_ADDRESS  0x41C00000
-unsigned int TCSR0 = AXI_TIMER_ADDRESS + 0x00; // Timer 0 Control and Status Register
-unsigned int TLR0  = AXI_TIMER_ADDRESS + 0x04; // Timer 0 Load Register
-unsigned int TCR0  = AXI_TIMER_ADDRESS + 0x08; // Timer 0 Counter Register
-unsigned int TCSR1 = AXI_TIMER_ADDRESS + 0x10; // Timer 1 Control and Status Register
-unsigned int TLR1  = AXI_TIMER_ADDRESS + 0x14; // Timer 1 Load Register
-unsigned int TCR1  = AXI_TIMER_ADDRESS + 0x18; // Timer 1 Counter Register
+#define AXI_TIMER 0x41C00000
+#define TCSR0     0x41C00000  // Timer 0 Control and Status Register
+#define TLR0      0x41C00004  // Timer 0 Load Register
+#define TCR0      0x41C00008  // Timer 0 Counter Register
+#define TCSR1     0x41C00010  // Timer 1 Control and Status Register
+#define TLR1      0x41C00014  // Timer 1 Load Register
+#define TCR1      0x41C00018  // Timer 1 Counter Register
 
-#define AXI_UARTLITE_ADDRESS   0x40600000
+#define UART      0x40600000
 
-#define AXI_BRAM_ADDRESS   0xC0000000
+#define AXI_BRAM  0xC0000000
 /* Timer 0 */
-unsigned int T0_TMR   = AXI_BRAM_ADDRESS + 0x00; // Timer 0 TMR
-unsigned int T0_TVAL  = AXI_BRAM_ADDRESS + 0x04; // Timer 0 TVAL
-unsigned int T0_TCONF = AXI_BRAM_ADDRESS + 0x08; // Timer 0 TCONF
+#define T0_TMR    0xC0000000  // Timer 0 TMR
+#define T0_TVAL   0xC0000004  // Timer 0 TVAL
+#define T0_TCONF  0xC0000008  // Timer 0 TCONF
 /* Timer 1 */
-unsigned int T1_TMR   = AXI_BRAM_ADDRESS + 0x0C; // Timer 1 TMR
-unsigned int T1_TVAL  = AXI_BRAM_ADDRESS + 0x10; // Timer 1 TVAL
-unsigned int T1_TCONF = AXI_BRAM_ADDRESS + 0x14; // Timer 1 TCONF
+#define T1_TMR    0xC000000C  // Timer 1 TMR
+#define T1_TVAL   0xC0000010  // Timer 1 TVAL
+#define T1_TCONF  0xC0000014  // Timer 1 TCONF
 /* Input Capture */
-unsigned int ICCONF   = AXI_BRAM_ADDRESS + 0x18; // IC ICCONF
-unsigned int ICBUF    = AXI_BRAM_ADDRESS + 0x1C; // IC ICBUF
+#define ICCONF    0xC0000018  // IC ICCONF
+#define ICBUF     0xC000001C  // IC ICBUF
 
 
 unsigned int get_tlr_value(unsigned int period) {
@@ -34,7 +34,7 @@ unsigned int get_tlr_value(unsigned int period) {
 #define PERIODS_LENGTH 3
 
 int main() {
-	Xil_Out32(GPIO_ADDRESS, Xil_In32(ICBUF));
+	Xil_Out32(GPIO, 0xAA);
 	/*Xil_Out32(ICCONF, 0b1100001);
 	Xil_Out32(ICCONF, 0b1100010);
 	Xil_Out32(ICCONF, 0b1100011);
@@ -76,7 +76,7 @@ int main() {
 		for (int i = 0; i < PERIODS_LENGTH; i++) {
 			Xil_Out32(TLR0, PERIODS[i]    ); // pwm period
 			Xil_Out32(TLR1, HIGH_TIMES[i] ); // pwm high time
-			Xil_Out32(GPIO_ADDRESS, TIMES[i]);
+			Xil_Out32(GPIO, TIMES[i]);
 			for (volatile int j = 0; j < 69; j++);
 		}
 	}
