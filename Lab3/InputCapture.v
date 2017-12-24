@@ -16,12 +16,14 @@ module InputCapture(
     );
     
     reg [2:0] ICM = 0;
-    wire ICBNE;
-    wire ICOV;
     reg [1:0] ICTMR = 0;
     
     wire prescaler_out;
-    wire ICBUF = 0;
+    wire ICBNE, ICOV;
+    wire [31:0] ICBUF;
+    wire fifo_rd_i;
+    
+    assign fifo_rd_i = (rd_i == 1 && addr_bi == 4) ? 1 : 0;
     
     Prescaler prescaler(
         .ins(ins),
@@ -32,6 +34,7 @@ module InputCapture(
     
     Fifo_control fifo(
         .ins(prescaler_out),
+        .rd_i(fifo_rd_i),
         .ICTMR(ICTMR),
         .t_val_bi_0(t_val_bi_0),
         .t_val_bi_1(t_val_bi_1),
@@ -60,7 +63,7 @@ module InputCapture(
                 end
                 4: begin
                     // TODO: implement fifo read
-                    data_bo <= 42;
+                    data_bo <= ICBUF;
                 end
                 default: begin
                     $display("Input Capture got unknown READ address: %d time: %d", addr_bi, $time);
