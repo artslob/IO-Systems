@@ -31,9 +31,9 @@ module Fifo_control(
                 if (((f_end + 1) % 20) == f_start) begin
                     ICBNE <= 0;
                 end
-                ICBUF <= fifo[(f_end + 1) % 20];
+                ICBUF <= fifo[f_end];
             end else begin
-                $display("Read from fifo while its empty!");
+                $display("Read from fifo while its empty, time: %d", $time);
                 ICBUF <= 0;
             end
         end
