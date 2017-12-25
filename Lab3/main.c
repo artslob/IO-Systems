@@ -41,7 +41,7 @@ int main() {
 	Xil_Out32(ICCONF, 0b1100001);
 	Xil_Out32(T0_TMR, 0xFFFF);
 	Xil_Out32(T0_TCONF, 0b10);
-	wait(5);
+	wait(50);
 	Xil_Out32(GPIO, Xil_In32(ICBUF));
 	/*Xil_Out32(ICCONF, 0b1100001);
 	Xil_Out32(ICCONF, 0b1100010);
