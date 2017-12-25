@@ -12,6 +12,10 @@
 #define TCR1      0x41C00018  // Timer 1 Counter Register
 
 #define UART      0x40600000
+#define UART_RX   0x40600000
+#define UART_TX   0x40600004
+#define UART_ST   0x40600008
+#define UART_CT   0x4060000C
 
 #define AXI_BRAM  0xC0000000
 /* Timer 0 */
