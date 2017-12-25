@@ -39,17 +39,34 @@ module Fifo_control(
         end
         if (ins != prev_ins) begin
             prev_ins <= ins;
-            fifo[f_start] <= t_val_bi_0;
-            if (f_start == f_end)
-                ICBUF <= t_val_bi_0;
-            ICBNE <= 1;
-            f_start <= (f_start + 1) % FIFO_LENGTH;
-            if (((f_start + 2) % FIFO_LENGTH) == f_end) begin
-                ICOV <= 1;
-            end else if (((f_start + 1) % FIFO_LENGTH) == f_end) begin
-                $display("Too fast ins, buffer overflow, time: %d", $time);
-                ICOV <= 1;
-                f_end <= (f_end + 1) % FIFO_LENGTH;
+            if (ICTMR > 0) begin
+                case (ICTMR)
+                    1: begin
+                        fifo[f_start] <= t_val_bi_0;
+                        if (f_start == f_end) ICBUF <= t_val_bi_0;
+                    end
+                    2: begin
+                        fifo[f_start] <= t_val_bi_1;
+                        if (f_start == f_end) ICBUF <= t_val_bi_1;
+                    end
+                    3: begin
+                        fifo[f_start] <= (t_val_bi_1 << 16) | t_val_bi_0;
+                        if (f_start == f_end) ICBUF <= (t_val_bi_1 << 16) | t_val_bi_0;
+                    end
+                    default: begin
+                        $display("Unknown ICTMR in fifo control: %d time %d", ICTMR, $time);
+                    end
+                endcase
+                
+                ICBNE <= 1;
+                f_start <= (f_start + 1) % FIFO_LENGTH;
+                if (((f_start + 2) % FIFO_LENGTH) == f_end) begin
+                    ICOV <= 1;
+                end else if (((f_start + 1) % FIFO_LENGTH) == f_end) begin
+                    $display("Too fast ins, buffer overflow, time: %d", $time);
+                    ICOV <= 1;
+                    f_end <= (f_end + 1) % FIFO_LENGTH;
+                end
             end
         end
     end

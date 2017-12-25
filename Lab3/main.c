@@ -42,7 +42,7 @@ unsigned int get_tlr_value(unsigned int period) {
 #define PERIODS_LENGTH 3
 
 int main() {
-	Xil_Out32(ICCONF, 0b1100001);
+	Xil_Out32(ICCONF, 0b0100001);
 	Xil_Out32(T0_TMR, 0xFFFF);
 	Xil_Out32(T0_TCONF, 0b10);
 
