@@ -33,6 +33,7 @@ module InputCapture(
     );
     
     Fifo_control fifo(
+        .clk(clk),
         .ins(prescaler_out),
         .rd_i(fifo_rd_i),
         .ICTMR(ICTMR),

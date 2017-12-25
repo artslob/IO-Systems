@@ -27,6 +27,10 @@
 #define ICBUF     0xC000001C  // IC ICBUF
 
 
+void wait(unsigned int tacts) {
+	for (volatile int i = 0; i < tacts; i++);
+}
+
 unsigned int get_tlr_value(unsigned int period) {
 	return 0xFFFFFFFF - (period / 10 - 2);
 }
@@ -34,7 +38,11 @@ unsigned int get_tlr_value(unsigned int period) {
 #define PERIODS_LENGTH 3
 
 int main() {
-	Xil_Out32(GPIO, 0xAA);
+	Xil_Out32(ICCONF, 0b1100001);
+	Xil_Out32(T0_TMR, 0xFFFF);
+	Xil_Out32(T0_TCONF, 0b10);
+	wait(5);
+	Xil_Out32(GPIO, Xil_In32(ICBUF));
 	/*Xil_Out32(ICCONF, 0b1100001);
 	Xil_Out32(ICCONF, 0b1100010);
 	Xil_Out32(ICCONF, 0b1100011);
