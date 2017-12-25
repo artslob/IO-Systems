@@ -31,6 +31,10 @@ void wait(unsigned int tacts) {
 	for (volatile int i = 0; i < tacts; i++);
 }
 
+unsigned char mod5(unsigned char param) {
+	return param % 5;
+}
+
 unsigned int get_tlr_value(unsigned int period) {
 	return 0xFFFFFFFF - (period / 10 - 2);
 }
@@ -41,23 +45,8 @@ int main() {
 	Xil_Out32(ICCONF, 0b1100001);
 	Xil_Out32(T0_TMR, 0xFFFF);
 	Xil_Out32(T0_TCONF, 0b10);
-	wait(50);
-	Xil_Out32(GPIO, Xil_In32(ICBUF));
-	/*Xil_Out32(ICCONF, 0b1100001);
-	Xil_Out32(ICCONF, 0b1100010);
-	Xil_Out32(ICCONF, 0b1100011);
-	Xil_Out32(ICCONF, 0b1100100);
-	Xil_Out32(ICCONF, 0b1100101);
-	Xil_Out32(ICCONF, 0b1100110);
-	Xil_Out32(ICCONF, 0b1100111);
-	Xil_In32(ICCONF);
-	Xil_In32(ICCONF);
-	Xil_In32(ICCONF);
-	Xil_Out32(ICCONF, 0b1100000);
-	Xil_Out32(ICCONF, 0b1100001);
-	Xil_Out32(GPIO_ADDRESS, Xil_In32(ICCONF));*/
 
-	unsigned int TIMES[] = {500, 600, 700};
+	unsigned int TIMES[] = {30000, 35000, 40000};
 
 	unsigned int PERIODS[] = {
 			get_tlr_value( TIMES[0] ),
@@ -80,12 +69,40 @@ int main() {
 	Xil_Out32(TCSR0, 0b001010000100);    // GENT0=1, ENT0=1, PWMA0=1
 	Xil_Out32(TCSR1, 0b001010000100);    // GENT1=1, ENT1=1, PWMB0=1
 
-	while(1) {
+	unsigned int buf[5] = {0};
+	unsigned char filled = 0, last = 0;
+
+	while (1) {
 		for (int i = 0; i < PERIODS_LENGTH; i++) {
 			Xil_Out32(TLR0, PERIODS[i]    ); // pwm period
 			Xil_Out32(TLR1, HIGH_TIMES[i] ); // pwm high time
-			Xil_Out32(GPIO, TIMES[i]);
-			for (volatile int j = 0; j < 69; j++);
+//			Xil_Out32(GPIO, TIMES[0]);
+
+			for (int j = 0; j < 5; j++) {
+				unsigned int icconf = Xil_In32(ICCONF);
+
+				if (((icconf >> 3) & 1) == 0) {
+					j--;
+					continue;
+				}
+
+				buf[last] = Xil_In32(ICBUF);
+				last = (last + 1) % 5;
+
+				if (!filled && last != 0)
+					continue;
+				else filled = 1;
+
+				if (buf[mod5(last + 4)] - buf[mod5(last + 3)] == buf[mod5(last + 2)] - buf[mod5(last + 1)] &&
+					buf[mod5(last + 3)] - buf[mod5(last + 2)] == buf[mod5(last + 1)] - buf[last])
+				{
+					unsigned int period = (buf[mod5(last + 4)] - buf[mod5(last + 2)]) * 10;
+					Xil_Out32(GPIO, period);
+				} else {
+					Xil_Out32(GPIO, 1);
+				}
+			}
 		}
 	}
+
 }
