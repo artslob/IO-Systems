@@ -94,6 +94,7 @@ int fifo_calc() {
 	Xil_Out32(TCSR1, 0b001010000100);    // GENT1=1, ENT1=1, PWMB0=1
 
 	unsigned int icbuf = 0, period = 0, prev_period = 0;
+	unsigned char non_periodical = 0;
 
 	while(1) {
 		for (int i = 0; i < PERIODS_LENGTH; i++) {
@@ -107,11 +108,15 @@ int fifo_calc() {
 					continue;
 				}
 				if ((icbuf & 0x40000000) == 0) {
-					Xil_Out32(GPIO, 0);
-					print_non_periodic();
+					if (non_periodical == 0) {
+						non_periodical = 1;
+						Xil_Out32(GPIO, 0);
+						print_non_periodic();
+					}
 				}
 				else {
 					period = icbuf & 0x7FFF;
+					non_periodical = 0;
 					if (period != prev_period) {
 						prev_period = period;
 						Xil_Out32(GPIO, period);
