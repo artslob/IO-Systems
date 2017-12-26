@@ -1,4 +1,6 @@
 #include <xil_io.h>
+#include <stdlib.h>
+//#include <stdio.h>
 
 #define GPIO      0x40000000
 
@@ -30,13 +32,31 @@
 #define ICCONF    0xC0000018  // IC ICCONF
 #define ICBUF     0xC000001C  // IC ICBUF
 
-
 void wait(unsigned int tacts) {
 	for (volatile int i = 0; i < tacts; i++);
 }
 
 unsigned char mod5(unsigned char param) {
 	return param % 5;
+}
+
+void print_period(unsigned int period) {
+	char str[17] = {0};
+	itoa(period, str, 10);
+	//sprintf(str, "%d %.2f\n", period, (float)(1.0f / (float) period));
+	Xil_Out32(UART_CT, 0b1);
+	char * p = str;
+	while(*p){
+		Xil_Out32(UART_TX, *p++);
+	}
+}
+
+void print_non_periodic() {
+	Xil_Out32(UART_CT, 0b1);
+	char * p = "Non periodic\n";
+	while(*p){
+		Xil_Out32(UART_TX, *p++);
+	}
 }
 
 unsigned int get_tlr_value(unsigned int period) {
@@ -73,6 +93,8 @@ int fifo_calc() {
 	Xil_Out32(TCSR0, 0b001010000100);    // GENT0=1, ENT0=1, PWMA0=1
 	Xil_Out32(TCSR1, 0b001010000100);    // GENT1=1, ENT1=1, PWMB0=1
 
+	unsigned int icbuf = 0, period = 0, prev_period = 0;
+
 	while(1) {
 		for (int i = 0; i < PERIODS_LENGTH; i++) {
 			Xil_Out32(TLR0, PERIODS[i]    ); // pwm period
@@ -80,15 +102,21 @@ int fifo_calc() {
 //			Xil_Out32(GPIO, TIMES[0]);
 
 			for (int j = 0; j < 10; j++) {
-				unsigned int icbuf = Xil_In32(ICBUF);
+				icbuf = Xil_In32(ICBUF);
 				if ((icbuf & 0x80000000) == 0) {
 					continue;
 				}
 				if ((icbuf & 0x40000000) == 0) {
-					Xil_Out32(GPIO, 1);
+					Xil_Out32(GPIO, 0);
+					print_non_periodic();
 				}
 				else {
-					Xil_Out32(GPIO, icbuf & 0x7FFF);
+					period = icbuf & 0x7FFF;
+					if (period != prev_period) {
+						prev_period = period;
+						Xil_Out32(GPIO, period);
+						print_period(period);
+					}
 				}
 			}
 		}
@@ -97,7 +125,7 @@ int fifo_calc() {
 	return 0;
 }
 
-int fifo() {
+/*int fifo() {
 	Xil_Out32(ICCONF, 0b0100001);
 	Xil_Out32(T0_TMR, 0xFFFF);
 	Xil_Out32(T0_TCONF, 0b10);
@@ -155,13 +183,13 @@ int fifo() {
 					unsigned int period = (buf[mod5(last + 4)] - buf[mod5(last + 2)]) * 10;
 					Xil_Out32(GPIO, period);
 				} else {
-					Xil_Out32(GPIO, 1);
+					Xil_Out32(GPIO, 0);
 				}
 			}
 		}
 	}
 	return 0;
-}
+}*/
 
 int main() {
 	return fifo_calc();
