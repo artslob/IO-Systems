@@ -45,7 +45,59 @@ unsigned int get_tlr_value(unsigned int period) {
 
 #define PERIODS_LENGTH 3
 
-int main() {
+int fifo_calc() {
+	Xil_Out32(ICCONF, 0b0100001);
+	Xil_Out32(T0_TMR, 0xFFFF);
+	Xil_Out32(T0_TCONF, 0b10);
+
+	unsigned int TIMES[] = {500, 600, 700};
+
+	unsigned int PERIODS[] = {
+			get_tlr_value( TIMES[0] ),
+			get_tlr_value( TIMES[1] ),
+			get_tlr_value( TIMES[2] )
+	};
+
+	unsigned int HIGH_TIMES[] = {
+			get_tlr_value( TIMES[0] / 2 ),
+			get_tlr_value( TIMES[1] / 2 ),
+			get_tlr_value( TIMES[2] / 2 )
+	};
+
+	Xil_Out32(TLR0, PERIODS[0]     );    // pwm period
+	Xil_Out32(TLR1, HIGH_TIMES[0]  );    // pwm high time
+
+	Xil_Out32(TCSR0, 0b000000100000);    // LOAD0=1
+	Xil_Out32(TCSR1, 0b000000100000);    // LOAD1=1
+
+	Xil_Out32(TCSR0, 0b001010000100);    // GENT0=1, ENT0=1, PWMA0=1
+	Xil_Out32(TCSR1, 0b001010000100);    // GENT1=1, ENT1=1, PWMB0=1
+
+	while(1) {
+		for (int i = 0; i < PERIODS_LENGTH; i++) {
+			Xil_Out32(TLR0, PERIODS[i]    ); // pwm period
+			Xil_Out32(TLR1, HIGH_TIMES[i] ); // pwm high time
+//			Xil_Out32(GPIO, TIMES[0]);
+
+			for (int j = 0; j < 10; j++) {
+				unsigned int icbuf = Xil_In32(ICBUF);
+				if ((icbuf & 0x80000000) == 0) {
+					continue;
+				}
+				if ((icbuf & 0x40000000) == 0) {
+					Xil_Out32(GPIO, 1);
+				}
+				else {
+					Xil_Out32(GPIO, icbuf & 0x7FFF);
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+
+int fifo() {
 	Xil_Out32(ICCONF, 0b0100001);
 	Xil_Out32(T0_TMR, 0xFFFF);
 	Xil_Out32(T0_TCONF, 0b10);
@@ -108,5 +160,9 @@ int main() {
 			}
 		}
 	}
+	return 0;
+}
 
+int main() {
+	return fifo_calc();
 }
