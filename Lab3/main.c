@@ -105,12 +105,13 @@ int fifo_calc() {
 			for (int j = 0; j < 10; j++) {
 				icbuf = Xil_In32(ICBUF);
 				if ((icbuf & 0x80000000) == 0) {
+					Xil_Out32(GPIO, 2);
 					continue;
 				}
 				if ((icbuf & 0x40000000) == 0) {
 					if (non_periodical == 0) {
 						non_periodical = 1;
-						Xil_Out32(GPIO, 0);
+						Xil_Out32(GPIO, 1);
 						print_non_periodic();
 					}
 				}
