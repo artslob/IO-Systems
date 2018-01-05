@@ -18,23 +18,23 @@ module InputCapture(
     reg [2:0] ICM = 0;
     reg [1:0] ICTMR = 0;
     
-    wire prescaler_out;
+    //wire prescaler_out;
     wire ICBNE, ICOV;
     wire [31:0] ICBUF;
     wire fifo_rd_i;
     
     assign fifo_rd_i = (rd_i == 1 && addr_bi == 4) ? 1 : 0;
     
-    Prescaler prescaler(
+    /*Prescaler prescaler(
         .ins(ins),
         .rst_i(rst_i),
         .ICM(ICM),
         .out(prescaler_out)
-    );
+    );*/
     
     Fifo_control_calc fifo(
         .clk(clk),
-        .ins(prescaler_out),
+        .ins(ins),
         .rd_i(fifo_rd_i),
         .ICTMR(ICTMR),
         .t_val_bi_0(t_val_bi_0),
