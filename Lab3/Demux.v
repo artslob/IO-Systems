@@ -2,7 +2,7 @@
 
 module Demux(
         input [1:0] mux_ctrl,
-        input [31:0]  in,
+        input [31:0] in,
         output reg [31:0] out_0, out_1, out_2
     );
     

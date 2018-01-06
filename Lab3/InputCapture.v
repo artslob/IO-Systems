@@ -32,7 +32,7 @@ module InputCapture(
         .out(prescaler_out)
     );*/
     
-    Fifo_control_calc fifo(
+    Fifo_control_calc_v2 fifo(
         .clk(clk),
         .ins(ins),
         .rd_i(fifo_rd_i),
