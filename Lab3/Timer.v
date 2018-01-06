@@ -10,7 +10,7 @@ module Timer(
         input rd_i,
         input wr_i,
         
-        output reg [15:0] t_val_bo
+        output reg [15:0] t_val_bo = 0
     );
     
     reg [15:0] TMR = 0, TVAL = 0, TCONF = 0;
