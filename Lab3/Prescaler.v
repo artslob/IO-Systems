@@ -7,7 +7,7 @@ module Prescaler(
         output reg out = 0
     );
     
-    integer counter = 0;
+    reg [31:0] counter = 0;
     
     always@(rst_i, ins) begin
         if (rst_i == 1) begin
